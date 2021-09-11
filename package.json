@@ -6,17 +6,29 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate:nexus": "NODE_ENV=development ts-node --transpile-only ./graphql/schema.ts"
   },
   "dependencies": {
+    "@notionhq/client": "^0.3.2",
+    "apollo-server-micro": "^2.25.2",
+    "evergreen-ui": "^6.4.0",
+    "graphql": "^15.5.3",
+    "lottie-web": "^5.7.13",
+    "micro": "^9.3.4",
     "next": "11.1.2",
+    "nexus": "^1.1.0",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "swr": "^1.0.0",
+    "unfetch": "^4.2.0"
   },
   "devDependencies": {
+    "@types/node": "^16.9.1",
     "@types/react": "17.0.20",
     "eslint": "7.32.0",
     "eslint-config-next": "11.1.2",
+    "ts-node": "^10.2.1",
     "typescript": "4.4.2"
   }
 }
