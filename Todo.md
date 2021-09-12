@@ -1,0 +1,1 @@
+- [ ] Continue on properties for all ex: rich text

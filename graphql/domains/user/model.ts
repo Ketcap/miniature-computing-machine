@@ -8,6 +8,7 @@ export const UserType = enumType({
 
 export const UserInterface = interfaceType({
   name: "UserInterface",
+  description:"This interface used to create union objects, use User, People, Bots instead",
   resolveType: (user) => user.type === 'person' ? 'People' : 'Bots',
   definition(t) {
     t.nonNull.string('id', {
@@ -16,6 +17,7 @@ export const UserInterface = interfaceType({
     t.nonNull.string('object', {
       description: 'Always "user"'
     });
+    
     t.field('type', { type: 'UserType' });
 
     t.string('name', {

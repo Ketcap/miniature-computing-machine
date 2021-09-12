@@ -26,13 +26,136 @@ type Bots implements UserInterface {
   type: UserType
 }
 
+type DatabaseParent {
+  """
+  The ID of the database that this page belongs to. Ex: "b8595b75-abd1-4cad-8dfe-f935a8ef57cb"
+  """
+  database_id: String!
+
+  """
+  Always "database_id".	Ex:"database_id"
+  """
+  type: String!
+}
+
+"""Emoji objects contain emoji data for page icons."""
+type Emoji {
+  """
+  Emoji character. Ex: "🐶"
+  """
+  emoji: String!
+
+  """Type of page icon. Possible values are: "emoji"."""
+  type: String!
+}
+
+"""An external file is any URL that isn't hosted by Notion."""
+type ExternalFile implements FileInterface {
+  external: ExternalFileObject!
+
+  """Type of file. Possible values are: "file", "external"."""
+  type: FileType!
+}
+
+type ExternalFileObject {
+  """
+  Link to the externally hosted content. Ex:"https://website.domain/files/doc.txt"
+  """
+  url: String!
+}
+
+union FileEmojiUnion = Emoji | ExternalFile | NotionFile
+
+"""
+File objects contain data about files uploaded to Notion as well as external files linked in Notion. This interface used to create union objects, use ExternalFile, NotionFile instead.
+"""
+interface FileInterface {
+  """Type of file. Possible values are: "file", "external"."""
+  type: FileType!
+}
+
+"""Type of this file object."""
+enum FileType {
+  external
+  file
+}
+
+union FileUnion = ExternalFile | NotionFile
+
 type ListAllUsersResponse {
   has_more: Boolean
   next_cursor: String
-  results: [ListUserResultUnion]
+  results: [UserResultUnion]
 }
 
-union ListUserResultUnion = Bots | People
+"""All files hosted by Notion."""
+type NotionFile implements FileInterface {
+  """
+  Date and time when this block was created. Formatted as an ISO 8601 date time string.	"2020-03-17T19:10:04.968Z"
+  """
+  expiry_time: String!
+
+  """Type of file. Possible values are: "file", "external"."""
+  type: FileType!
+
+  """
+  Authenticated S3 URL to the file. The file URL will be valid for 1 hour but updated links can be requested if required. Ex: "https://s3.us-west-2.amazonaws.com/secure.notion-static.com/9bc6c6e0-32b8-4d55-8c12-3ae931f43a01/brocolli.jpeg?...
+  """
+  url: String!
+}
+
+"""The Page object contains the property values of a single Notion page."""
+type Page {
+  """The archived status of the page."""
+  archived: Boolean!
+
+  """Page cover image."""
+  cover: FileUnion
+
+  """
+  Date and time when this page was created. Formatted as an ISO 8601 date time string. Ex: "2020-03-17T19:10:04.968Z"
+  """
+  created_time: String!
+
+  """Page icon."""
+  icon: FileEmojiUnion
+
+  """
+  Unique identifier of the page. Ex: "45ee8d13-687b-47ce-a5ca-6e2e45548c4b"
+  """
+  id: String!
+
+  """
+  Date and time when this page was created. Formatted as an ISO 8601 date time string. Ex: "2020-03-17T19:10:04.968Z"
+  """
+  last_edited_time: String!
+
+  """Always "page"."""
+  object: String!
+
+  """The parent of this page."""
+  parent: ParentUnion
+
+  """
+  The URL of the Notion page.	Ex: "https://www.notion.so/Avocado-d093f1d200464ce78b36e58a3f0d8043"
+  """
+  url: String!
+}
+
+type PageParent {
+  """
+  The ID of the page that this page belongs to. Ex: "b8595b75-abd1-4cad-8dfe-f935a8ef57cb"
+  """
+  page_id: String!
+
+  """
+  Always "page_id".	Ex:"page_id"
+  """
+  type: String!
+}
+
+"""The parent of this page. Can be a database, page, or workspace."""
+union ParentUnion = DatabaseParent | PageParent | WorkspaceParent
 
 type People implements UserInterface {
   """
@@ -70,8 +193,48 @@ type PersonObject {
   email: String!
 }
 
+enum PropertyType {
+  checkbox
+  created_by
+  created_time
+  date
+  email
+  files
+  formula
+  last_edited_by
+  last_edited_time
+  multi_select
+  number
+  people
+  phone_number
+  relation
+  rich_text
+  rollup
+  select
+  title
+  url
+}
+
 type Query {
-  listAllUsers: ListAllUsersResponse
+  listAllUsers(
+    """
+    The number of items from the full list desired in the response. Maximum: 100
+    """
+    page_size: Int
+
+    """
+    If supplied, this endpoint will return a page of results starting after the cursor provided. If not supplied, this endpoint will return the first page of results.
+    """
+    start_cursor: String
+  ): ListAllUsersResponse
+  retrievePage(
+    """Identifier for a Notion page"""
+    page_id: String!
+  ): Page
+  retrieveUser(
+    """Identifier for a Notion user"""
+    user_id: String!
+  ): UserResultUnion
 }
 
 type User implements UserInterface {
@@ -97,6 +260,9 @@ type User implements UserInterface {
   type: UserType
 }
 
+"""
+This interface used to create union objects, use User, People, Bots instead
+"""
 interface UserInterface {
   """
   Chosen avatar image. Ex: "https://secure.notion-static.com/e6a352a8-8381-44d0-a1dc-9ed80e62b53d.jpg"
@@ -120,8 +286,20 @@ interface UserInterface {
   type: UserType
 }
 
+union UserResultUnion = Bots | People
+
 """Type of the user."""
 enum UserType {
   bot
   person
+}
+
+type WorkspaceParent {
+  """
+  Always "workspace".	Ex:"workspace"
+  """
+  type: String!
+
+  """Always true."""
+  workspace: Boolean!
 }

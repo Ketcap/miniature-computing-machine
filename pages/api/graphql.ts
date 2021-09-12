@@ -3,8 +3,6 @@ import { NextApiRequest } from 'next';
 import { schema } from '../../graphql/schema';
 import { getNotionClient } from '../../utils/notion';
 
-const introspectionQueryName = 'IntrospectionQuery'
-
 const server = new ApolloServer({
   schema,
   context: ({ req }:{req:NextApiRequest}) => {
